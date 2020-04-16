@@ -11,7 +11,7 @@
     'category': 'Generic Modules/Base',
     'author': "Agile Business Group & Domsense, Pegueroles SCP, NaN,"
               " LasLabs, Camptocamp, Odoo Community Association (OCA),"
-              " Open for Small Business Ltd",
+              " Open for Small Business Ltd, Compassion Switzerland",
     'website': 'http://www.agilebg.com',
     'license': 'AGPL-3',
     "depends": ['web'],

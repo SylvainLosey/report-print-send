@@ -109,7 +109,7 @@ class PrintingPrinter(models.Model):
 
         if report is not None:
             # Some modules pass report_name instead of the report.
-            full_report = self.env['report']._get_report_from_name(report) \
+            full_report = self.env['ir.actions.report']._get_report_from_name(report) \
                 if isinstance(report, str) else report
             for printer_option in full_report.printer_options:
                 options[
