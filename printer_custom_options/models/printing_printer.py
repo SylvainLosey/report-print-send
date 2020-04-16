@@ -60,11 +60,12 @@ class PrintingPrinter(models.Model):
 
             new_option_values = []
             for printer_option in self.printer_options:
-                option_key = printer_option.option_key
-                new_options = self.discover_values_of_option(ppd,
-                                                             current_option_keys,
-                                                             option_key)
-                new_option_values.extend(new_options)
+                if printer_option.option_key not in ['InputSlot', 'OutputBin']:
+                    option_key = printer_option.option_key
+                    new_options = self.discover_values_of_option(ppd,
+                                                                 current_option_keys,
+                                                                 option_key)
+                    new_option_values.extend(new_options)
             vals['printer_option_choices'] = new_option_values
 
             self._cleanup_ppd(ppd_path)
@@ -108,7 +109,7 @@ class PrintingPrinter(models.Model):
 
         if report is not None:
             # Some modules pass report_name instead of the report.
-            full_report = self.env['report']._get_report_from_name(report) \
+            full_report = self.env['ir.actions.report']._get_report_from_name(report) \
                 if isinstance(report, str) else report
             for printer_option in full_report.printer_options:
                 options[
