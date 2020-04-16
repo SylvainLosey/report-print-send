@@ -24,9 +24,9 @@ class TestPrintingPrinter(TransactionCase):
             'location': 'Location',
             'uri': 'URI',
         })
-        self.bin_option = self.env['printer.option.choice'].create({
-            'option_key': 'OutputBin',
-            'option_value': 'bin1',
+        self.duplex_option = self.env['printer.option.choice'].create({
+            'option_key': 'KMDuplex',
+            'option_value': '2Sided',
             'printer_id': self.printer.id,
         })
         self.printer_vals = {
@@ -39,12 +39,12 @@ class TestPrintingPrinter(TransactionCase):
 
     def test_print_options__copies_options_from_report(self):
         mock_report = mock.Mock()
-        mock_report.printer_options = [self.bin_option]
+        mock_report.printer_options = [self.duplex_option]
 
         options = self.printer \
             .print_options(report=mock_report)
 
-        self.assertEqual(options['OutputBin'], 'bin1')
+        self.assertEqual(options['KMDuplex'], '2Sided')
 
     def test_print_options__without_option(self):
         mock_report = mock.Mock()
@@ -65,14 +65,14 @@ class TestPrintingPrinter(TransactionCase):
 
         self.assertEqual(len(self.printer.printer_options), 1)
         self.assertEqual(self.printer.printer_options[0].option_key,
-                         'OutputBin')
+                         'KMDuplex')
 
     @mock.patch('%s.cups' % server_model)
     def test_prepare_update_from_cups(self, patched_cups):
         patched_cups.Connection.return_value.getPPD3.return_value = (200, 1, None)
         self._mock_cups_options(self.printer,
-                                [{'choice': 'bin1'},
-                                 {'choice': 'bin2'}])
+                                [{'choice': '2Sided'},
+                                 {'choice': '1Sided'}])
 
         vals = self.printer._prepare_update_from_cups(
             patched_cups.Connection(), self.printer_vals)
@@ -80,10 +80,10 @@ class TestPrintingPrinter(TransactionCase):
         # OutputBin:bin1 was already inserted
         self.assertEqual(len(vals['printer_option_choices']), 1)
         self.assertIn((0, 0,
-                       {'option_key': 'OutputBin', 'option_value': 'bin2'}),
+                       {'option_key': 'KMDuplex', 'option_value': '1Sided'}),
                       vals['printer_option_choices'])
         self.assertNotIn((0, 0,
-                          {'option_key': 'OutputBin', 'option_value': 'bin1'}),
+                          {'option_key': 'KMDuplex', 'option_value': '2Sided'}),
                          vals['printer_option_choices'])
 
     def _mock_cups_options(self, printer,
@@ -93,7 +93,7 @@ class TestPrintingPrinter(TransactionCase):
             # Mock optionGroups
             mock_option_group = mock.Mock()
             mock_option = mock.Mock()
-            mock_option.keyword = 'OutputBin'
+            mock_option.keyword = 'KMDuplex'
             mock_option.choices = choices
             mock_option_group.options = [mock_option]
             mock_ppd.optionGroups = [mock_option_group]
